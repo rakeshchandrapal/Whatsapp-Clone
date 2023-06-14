@@ -75,7 +75,7 @@ class _ChatListState extends ConsumerState<ChatList> {
                     type: messageData.type,
                     repliedText: messageData.repliedMessage,
                     userName: messageData.repliedTo,
-                    repliedMessageType: messageData.type,
+                    repliedMessageType: messageData.repliedMessageType,
                     onLeftSwipe: () => onMessageSwipe(
                       messageData.text,
                       true,
@@ -89,7 +89,7 @@ class _ChatListState extends ConsumerState<ChatList> {
                     type: messageData.type,
                     repliedText: messageData.repliedMessage,
                     userName: messageData.repliedTo,
-                    repliedMessageType: messageData.type,
+                    repliedMessageType: messageData.repliedMessageType,
                     onRightSwipe: () => onMessageSwipe(
                       messageData.text,
                       false,

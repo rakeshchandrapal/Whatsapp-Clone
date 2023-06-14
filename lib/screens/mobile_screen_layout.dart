@@ -19,6 +19,7 @@ class _MobileScreenLayoutState extends ConsumerState<MobileScreenLayout> with Wi
   void initState(){
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    ref.read(authControllerProvider).setUserState(true);
   }
 
   @override

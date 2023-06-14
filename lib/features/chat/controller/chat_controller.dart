@@ -44,6 +44,7 @@ class ChatController {
             senderUser: value!,
             messageReply:messageReply,
         ));
+    ref.read(messageReplyProvider.state).update((state) => null);
   }
 
   void sendFileMessage(
@@ -63,5 +64,6 @@ class ChatController {
             ref: ref,
           messageReply: messageReply,
         ));
+    ref.read(messageReplyProvider.state).update((state) => null);
   }
 }
