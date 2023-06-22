@@ -40,10 +40,11 @@ class Message {
     };
   }
 
+
   factory Message.fromMap(Map<String, dynamic> map) {
     return Message(
       senderId: map['senderId'] ?? '',
-      receiverId: map['receiverId '] ?? '',
+      receiverId: map['receiverId'] ?? '',
       text: map['text'] ?? '',
       type: (map['type'] as String).toEnum(),
       timeSent: DateTime.fromMillisecondsSinceEpoch(map['timeSent']),
@@ -54,4 +55,19 @@ class Message {
       repliedMessageType: (map['repliedMessageType'] as String).toEnum(),
     );
   }
+
+
+  // void tos() {
+  //
+  //     print('senderId: ${this.senderId}');
+  //     print('receiverId: ${this.receiverId}');
+  //     print('text:  ${this.text}');
+  //     print('type:  ${this.type}');
+  //     print('timeSent:  ${this.timeSent}');
+  //     print('messageId: ${this.messageId}');
+  //     print('isSeen: ${this.isSeen}');
+  //     print('repliedMessage: ${this.repliedMessage}');
+  //     print('repliedTo:  ${this.repliedTo}',);
+  //     print('repliedMessageType:  ${this.repliedMessageType}',);
+  // }
 }

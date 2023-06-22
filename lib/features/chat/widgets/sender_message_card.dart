@@ -68,17 +68,23 @@ class SenderMessageCard extends StatelessWidget {
                           text: userName,
                           weight: FontWeight.bold,
                         ),
-                        const SizedBox(height: 3,),
+                        const SizedBox(
+                          height: 3,
+                        ),
                         Container(
                             padding: const EdgeInsets.all(10),
-                            decoration:  BoxDecoration(
+                            decoration: BoxDecoration(
                               color: backgroundColor.withOpacity(0.5),
-                              borderRadius: const  BorderRadius.all(Radius.circular(5),),
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(5),
+                              ),
                             ),
                             child: DisplayTextImageGIF(
                                 message: repliedText,
                                 type: repliedMessageType)),
-                        const SizedBox(height: 8,),
+                        const SizedBox(
+                          height: 8,
+                        ),
                       ],
                       DisplayTextImageGIF(message: message, type: type),
                     ],
@@ -87,19 +93,7 @@ class SenderMessageCard extends StatelessWidget {
                 Positioned(
                   bottom: 2,
                   right: 10,
-                  child: Row(
-                    children: [
-                      AppText(text: date, size: 10, color: Colors.white60),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      const Icon(
-                        Icons.done_all,
-                        size: 20,
-                        color: Colors.white60,
-                      ),
-                    ],
-                  ),
+                  child: AppText(text: date, size: 10, color: Colors.white60),
                 ),
               ],
             ),

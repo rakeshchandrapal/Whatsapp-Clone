@@ -13,9 +13,8 @@ import 'package:whatsapp_clone/models/message.dart';
 import '../../../common/providers/message_reply_provider.dart';
 import '../../../models/user_model.dart';
 
-final chatRepositoryProvider = Provider((ref) =>
-    ChatRepository(
-        firestore: FirebaseFirestore.instance, auth: FirebaseAuth.instance));
+final chatRepositoryProvider = Provider((ref) => ChatRepository(
+    firestore: FirebaseFirestore.instance, auth: FirebaseAuth.instance));
 
 class ChatRepository {
   final FirebaseFirestore firestore;
@@ -68,11 +67,13 @@ class ChatRepository {
     });
   }
 
-  void _saveDataToContactSubCollection(UserModel senderUserData,
-      UserModel receiverUserData,
-      String text,
-      DateTime timeSent,
-      String receiverUserId,) async {
+  void _saveDataToContactSubCollection(
+    UserModel senderUserData,
+    UserModel receiverUserData,
+    String text,
+    DateTime timeSent,
+    String receiverUserId,
+  ) async {
     var receiverChatContact = ChatContact(
         name: senderUserData.name,
         profilePic: senderUserData.profilePic,
@@ -113,7 +114,6 @@ class ChatRepository {
     required MessageReply? messageReply,
     required String senderUserName,
     required MessageEnum repliedMessageType,
-
   }) async {
     final message = Message(
         senderId: auth.currentUser!.uid,
@@ -124,7 +124,11 @@ class ChatRepository {
         messageId: messageId,
         isSeen: false,
         repliedMessage: messageReply == null ? '' : messageReply.message,
-        repliedTo: messageReply == null ? '' : messageReply.isMe ?  senderUserName : receiverUsername,
+        repliedTo: messageReply == null
+            ? ''
+            : messageReply.isMe
+                ? senderUserName
+                : receiverUsername,
         repliedMessageType: repliedMessageType);
 
     await firestore
@@ -152,14 +156,13 @@ class ChatRepository {
     required String receiverUserId,
     required UserModel senderUser,
     required MessageReply? messageReply,
-
   }) async {
     try {
       var timeSent = DateTime.now();
       UserModel receiverUserData;
 
       var userDataMap =
-      await firestore.collection('users').doc(receiverUserId).get();
+          await firestore.collection('users').doc(receiverUserId).get();
       receiverUserData = UserModel.fromMap(userDataMap.data()!);
 
       _saveDataToContactSubCollection(
@@ -179,19 +182,17 @@ class ChatRepository {
         messageId: messageId,
         receiverUsername: receiverUserData.name,
         userName: senderUser.name,
-        messageReply:  messageReply,
+        messageReply: messageReply,
         senderUserName: senderUser.name,
-        repliedMessageType:  messageReply == null ? MessageEnum.text : messageReply.messageEnum,
-
-
-
+        repliedMessageType:
+            messageReply == null ? MessageEnum.text : messageReply.messageEnum,
       );
     } catch (e) {
       showSnackBar(context: context, content: e.toString());
     }
   }
 
-  void  sendFileMessage({
+  void sendFileMessage({
     required BuildContext context,
     required File file,
     required String receiverUserId,
@@ -199,7 +200,6 @@ class ChatRepository {
     required ProviderRef ref,
     required MessageEnum messageEnum,
     required MessageReply? messageReply,
-
   }) async {
     try {
       var timeSent = DateTime.now();
@@ -208,12 +208,11 @@ class ChatRepository {
       String imgUrl = await ref
           .read(commonFirebaseStorageRepositoryProvider)
           .storeFileToFirebase(
-          'chat/${messageEnum.type}/${senderUserData
-              .uid}/$receiverUserId/$messageId',
-          file);
+              'chat/${messageEnum.type}/${senderUserData.uid}/$receiverUserId/$messageId',
+              file);
       UserModel receiverUserData;
       var userDataMap =
-      await firestore.collection('users').doc(receiverUserId).get();
+          await firestore.collection('users').doc(receiverUserId).get();
       receiverUserData = UserModel.fromMap(userDataMap.data()!);
 
       String contactMsg;
@@ -239,7 +238,8 @@ class ChatRepository {
         receiverUserData,
         contactMsg,
         timeSent,
-        receiverUserId,);
+        receiverUserId,
+      );
 
       _saveMessageToMessageSubCollection(
         receiverUserId: receiverUserId,
@@ -249,12 +249,39 @@ class ChatRepository {
         userName: senderUserData.name,
         receiverUsername: receiverUserData.name,
         messageType: messageEnum,
-        messageReply:  messageReply,
+        messageReply: messageReply,
         senderUserName: senderUserData.name,
-        repliedMessageType:  messageReply == null ? MessageEnum.text : messageReply.messageEnum,
-
-
+        repliedMessageType:
+            messageReply == null ? MessageEnum.text : messageReply.messageEnum,
       );
+    } catch (e) {
+      showSnackBar(context: context, content: e.toString());
+    }
+  }
+
+  void setChatMessageSeen(
+    BuildContext context,
+    String receiverUserId,
+    String messageId,
+  ) async {
+    try {
+      await firestore
+          .collection('users')
+          .doc(auth.currentUser!.uid)
+          .collection('chats')
+          .doc(receiverUserId)
+          .collection('messages')
+          .doc(messageId)
+          .update({'isSeen': true});
+
+      await firestore
+          .collection('users')
+          .doc(receiverUserId)
+          .collection('chats')
+          .doc(auth.currentUser!.uid)
+          .collection('messages')
+          .doc(messageId)
+          .update({'isSeen': true});
     } catch (e) {
       showSnackBar(context: context, content: e.toString());
     }
