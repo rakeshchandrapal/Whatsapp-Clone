@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatsapp_clone/assets/colors.dart';
+import 'package:whatsapp_clone/common/utils/utils.dart';
 import 'package:whatsapp_clone/features/select_contacts/screens/select_contacts_screen.dart';
 import 'package:whatsapp_clone/features/chat/widgets/contacts_list.dart';
+import 'package:whatsapp_clone/features/status/screen/confirm_status_screen.dart';
+import 'package:whatsapp_clone/features/status/screen/status_contacts_screen.dart';
 
 import '../features/auth/controller/auth_controller.dart';
 
@@ -13,11 +18,15 @@ class MobileScreenLayout extends ConsumerStatefulWidget {
   ConsumerState<MobileScreenLayout> createState() => _MobileScreenLayoutState();
 }
 
-class _MobileScreenLayoutState extends ConsumerState<MobileScreenLayout> with WidgetsBindingObserver{
+class _MobileScreenLayoutState extends ConsumerState<MobileScreenLayout>
+    with WidgetsBindingObserver,TickerProviderStateMixin {
+
+  late TabController tabBarController ;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
+    tabBarController = TabController(length: 3, vsync: this);
     WidgetsBinding.instance.addObserver(this);
     ref.read(authControllerProvider).setUserState(true);
   }
@@ -28,11 +37,10 @@ class _MobileScreenLayoutState extends ConsumerState<MobileScreenLayout> with Wi
     WidgetsBinding.instance.addObserver(this);
   }
 
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    switch(state){
+    switch (state) {
       case AppLifecycleState.resumed:
         ref.read(authControllerProvider).setUserState(true);
         break;
@@ -52,45 +60,70 @@ class _MobileScreenLayoutState extends ConsumerState<MobileScreenLayout> with Wi
           appBar: AppBar(
             backgroundColor: appBarColor,
             elevation: 0,
-            title: const Text("Whatsapp", style: TextStyle(
-              color: Colors.grey,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),),
+            title: const Text(
+              "Whatsapp",
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             centerTitle: false,
             actions: [
               IconButton(
-                  onPressed: (){}, icon: const Icon(Icons.search, ), color: Colors.grey,
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.search,
+                ),
+                color: Colors.grey,
               ),
               IconButton(
-                  onPressed: (){}, icon: const Icon(Icons.more_vert),color: Colors.grey,
+                onPressed: () {},
+                icon: const Icon(Icons.more_vert),
+                color: Colors.grey,
               ),
-
             ],
-            bottom: const TabBar(
-              indicatorWeight: 4,
-              indicatorColor: tabColor,
-              labelColor: tabColor,
-              unselectedLabelColor: Colors.grey,
-              labelStyle: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-                tabs: [
-                  Tab(text:'CHATS'),
-                  Tab(text:'STATUS'),
-                  Tab(text:'CALLS'),
-               ]
+            bottom: TabBar(
+                controller: tabBarController,
+                indicatorWeight: 4,
+                indicatorColor: tabColor,
+                labelColor: tabColor,
+                unselectedLabelColor: Colors.grey,
+                labelStyle: const    TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+                tabs:const[
+                  Tab(text: 'CHATS'),
+                  Tab(text: 'STATUS'),
+                  Tab(text: 'CALLS'),
+                ]),
+          ),
+          body: TabBarView(
+              controller: tabBarController,
+              children: const [
+            ContactsList(),
+            StatusContactsScreen(),
+            Text('Calls'),
+          ]),
+          floatingActionButton: FloatingActionButton(
+            onPressed: ()  async {
+              if(tabBarController.index == 0){
+              Navigator.pushNamed(context, SelectContactsScreen.routeName);
+              }
+              else{
+                File? pickedImage = await pickImageFromGallery(context);
+                if(pickedImage != null){
+                  Navigator.pushNamed(context, ConfirmStatusScreen.routeName,arguments: pickedImage);
+                }
+              }
+
+              },
+            backgroundColor: tabColor,
+            child: const Icon(
+              Icons.chat,
+              color: Colors.white,
             ),
           ),
-          body: const ContactsList(),
-          floatingActionButton: FloatingActionButton(
-            onPressed: (){
-              Navigator.pushNamed(context, SelectContactsScreen.routeName);
-            },
-            backgroundColor: tabColor,
-            child: const Icon(Icons.chat,color: Colors.white,),
-          ),
-        )
-    );
+        ));
   }
 }

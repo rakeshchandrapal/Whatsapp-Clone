@@ -32,6 +32,7 @@ class _UserInformationScreenState extends ConsumerState<UserInformationScreen> {
 
   void storeUserData() async {
     String name = nameController.text.trim();
+    image ??= const AssetImage('lib/assets/images/img.png') as File?;
     if (name.isNotEmpty) {
       ref
           .read(authControllerProvider)

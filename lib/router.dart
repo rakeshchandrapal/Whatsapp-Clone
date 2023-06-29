@@ -1,11 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:whatsapp_clone/features/auth/screens/otp_screen.dart';
 import 'package:whatsapp_clone/features/select_contacts/screens/select_contacts_screen.dart';
 import 'package:whatsapp_clone/features/chat/screens/mobile_chat_screen.dart';
+import 'package:whatsapp_clone/models/status_model.dart';
 
 import 'common/widgets/error_screen.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/auth/screens/user_information_screen.dart';
+import 'features/status/screen/confirm_status_screen.dart';
+import 'features/status/screen/status_screen.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings ){
   switch(settings.name){
@@ -26,6 +31,13 @@ Route<dynamic> generateRoute(RouteSettings settings ){
        name: name,
         uid: uid,
       ));
+    case ConfirmStatusScreen.routeName:
+      final file = settings.arguments as File;
+      return MaterialPageRoute(builder: (context) =>   ConfirmStatusScreen(file: file));
+
+    case StatusScreen.routeName:
+      final status = settings.arguments as Status;
+      return MaterialPageRoute(builder: (context) =>   StatusScreen(status : status ));
 
     default:
         return MaterialPageRoute(builder: (context) => const Scaffold(body: ErrorScreen(error: 'This page does\'not exists')) );

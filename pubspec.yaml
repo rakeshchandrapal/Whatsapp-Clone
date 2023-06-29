@@ -58,6 +58,8 @@ dependencies:
   permission_handler: ^9.2.0
   audioplayers: ^1.0.1
   swipe_to: ^1.0.2
+  story_view: ^0.14.0
+  firebase_app_check: ^0.1.5
 
 dev_dependencies:
   flutter_test:
