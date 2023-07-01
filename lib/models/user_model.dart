@@ -12,7 +12,7 @@ class UserModel {
       required this.profilePic,
       required this.isOnline,
       required this.phoneNumber,
-      required this.groupId
+      required this.groupId,
       });
   Map<String, dynamic> toMap() {
     return {

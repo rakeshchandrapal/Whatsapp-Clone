@@ -8,6 +8,7 @@ import 'package:whatsapp_clone/common/utils/utils.dart';
 import 'package:whatsapp_clone/common/widgets/custom_button.dart';
 import 'package:whatsapp_clone/features/auth/controller/auth_controller.dart';
 import '../../../widgets/appText.dart';
+import '../../status/controller/status_contoroller.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   static const routeName = '/login-screen';
@@ -27,7 +28,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
     phoneController.dispose();
   }
-
   void pickCountry() {
     showCountryPicker(
         context: context,

@@ -20,8 +20,8 @@ class StatusContactsScreen extends ConsumerWidget {
       future: ref.read(statusControllerProvider).getStatus(context),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          ref.read(statusControllerProvider).whoCanSee();
-          print("Who can see is called");
+          // ref.read(statusControllerProvider).whoCanSee();
+          // print("Who can see is called");
           return const Loader();
         }
         return ListView.builder(

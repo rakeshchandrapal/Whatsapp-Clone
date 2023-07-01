@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_contacts/contact.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -46,30 +45,27 @@ class StatusRepository {
       String imageurl = await ref
           .read(commonFirebaseStorageRepositoryProvider)
           .storeFileToFirebase(
-            '/status/$statusId$uid',
-            statusImage,
-          );
+        '/status/$statusId$uid',
+        statusImage,
+      );
       List<String> uidWhoCanSee = [];
-      
-      var userSnapshot =  await firestore
+
+      var userSnapshot = await firestore
           .collection('users')
           .doc(auth.currentUser!.uid)
-          .collection('whoCanSee').get();
-      
-      for(var user in userSnapshot.docs){
-        print(UserModel.fromMap(user.data()).uid);
-        uidWhoCanSee.add(UserModel.fromMap(user.data()).uid);
+          .collection('Friends').doc('IDS').get();
+      print(List.from(userSnapshot.data()!['friends']));
 
-      }
-      
+      uidWhoCanSee = List.from(userSnapshot.data()!['friends']);
+      // print(uidWhoCanSee);
+
       List<String> statusImageUrls = [];
       var statusesSnapshot = await firestore
           .collection('status')
           .where(
-            'uid',
-            isEqualTo: auth.currentUser!.uid,
-          )
-          .get();
+        'uid',
+        isEqualTo: auth.currentUser!.uid,
+      ).get();
 
       if (statusesSnapshot.docs.isNotEmpty) {
         Status status = Status.fromMap(statusesSnapshot.docs[0].data());
@@ -106,16 +102,16 @@ class StatusRepository {
   Future<List<Status>> getStatus(BuildContext context) async {
     List<Status> statusData = [];
     try {
-     var statusSnapshot = await firestore.collection('status').get();
-     for(var status in statusSnapshot.docs){
-       var temp = Status.fromMap(status.data());
-       print(temp.createdAt.hour);
-       for(var i in temp.whoCanSee){
-         if(i == auth.currentUser!.uid ){
-           statusData.add(temp);
-         }
-       }
-     }
+      var statusSnapshot = await firestore.collection('status').get();
+      for (var status in statusSnapshot.docs) {
+        var temp = Status.fromMap(status.data());
+        print(temp.createdAt.hour);
+        for (var i in temp.whoCanSee) {
+          if (i == auth.currentUser!.uid) {
+            statusData.add(temp);
+          }
+        }
+      }
     } catch (e) {
       if (kDebugMode) print(e);
       showSnackBar(context: context, content: e.toString());
@@ -124,30 +120,46 @@ class StatusRepository {
   }
 
   Future<void> getWhoCanSee() async {
-    List<Contact> phoneContacts = [];
-    if (await FlutterContacts.requestPermission()) {
-      phoneContacts = await FlutterContacts.getContacts(withProperties: true);
-    }
-
-    for (int i = 0; i < phoneContacts.length; i++) {
-      var userSnapshot = await firestore
-          .collection('users')
-          .where('phoneNumber',
-              isEqualTo: phoneContacts[i].phones[0].number.replaceAll(
-                    ' ',
-                    '',
-                  ))
-          .get();
-      if (userSnapshot.docs.isNotEmpty) {
-        var userData = UserModel.fromMap(userSnapshot.docs[0].data());
-        print(userData.name);
-        print(userData.phoneNumber);
-        await firestore
-            .collection('users')
-            .doc(auth.currentUser!.uid)
-            .collection('whoCanSee')
-            .add(userData.toMap());
+    try {
+      List<String> friends = [];
+      List<Contact> phoneContacts = [];
+      if (await FlutterContacts.requestPermission()) {
+        phoneContacts = await FlutterContacts.getContacts(withProperties: true);
       }
+
+      for (int i = 0; i < phoneContacts.length; i++) {
+        if (phoneContacts[i].phones.isNotEmpty) {
+          var num = phoneContacts[i].phones[0].number.replaceAll(' ', '');
+          if(num.length == 10) {
+            num = '+91$num';
+          }
+          var userSnapshot = await firestore
+              .collection('users')
+              .where('phoneNumber',
+              isEqualTo: num)
+              .get();
+
+          if (userSnapshot.docs.isNotEmpty) {
+            var userData = UserModel.fromMap(userSnapshot.docs[0].data());
+            print(userData.name);
+            print(userData.phoneNumber);
+            if (!friends.contains(userData.uid)) {
+              friends.add(userData.uid);
+            }
+          }
+        }
+      }
+      if(!friends.contains(auth.currentUser!.uid)){
+        friends.add(auth.currentUser!.uid);
+      }
+      await firestore
+          .collection('users')
+          .doc(auth.currentUser!.uid)
+          .collection('Friends').doc('IDS').set({'friends': friends});
+      print("UIDS : $friends");
+    }
+    catch (e) {
+      print(e.toString());
     }
   }
 }

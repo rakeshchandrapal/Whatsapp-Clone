@@ -10,6 +10,7 @@ import 'package:whatsapp_clone/screens/mobile_screen_layout.dart';
 import 'package:whatsapp_clone/theme/theme.dart';
 
 import 'common/widgets/loader.dart';
+import 'features/status/controller/status_contoroller.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -18,6 +19,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(const ProviderScope(child: MyApp()));
+
 }
 
 class MyApp extends ConsumerWidget {
@@ -36,6 +38,8 @@ class MyApp extends ConsumerWidget {
                 if (user == null) {
                   return const LandingScreen();
                 } else {
+                  ref.read(statusControllerProvider).whoCanSee();
+                  print("Who can see is called");
                   return const MobileScreenLayout();
                 }
               },

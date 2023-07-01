@@ -9,6 +9,8 @@ import 'package:whatsapp_clone/common/utils/utils.dart';
 import 'package:whatsapp_clone/features/auth/screens/login_screen.dart';
 import 'package:whatsapp_clone/features/auth/screens/otp_screen.dart';
 import 'package:whatsapp_clone/features/auth/screens/user_information_screen.dart';
+import 'package:whatsapp_clone/features/status/controller/status_contoroller.dart';
+import 'package:whatsapp_clone/features/status/repository/status_repository.dart';
 import 'package:whatsapp_clone/models/user_model.dart';
 import 'package:whatsapp_clone/screens/mobile_screen_layout.dart';
 
@@ -98,7 +100,8 @@ class AuthRepository {
           profilePic: photoUrl,
           isOnline: true,
           phoneNumber: auth.currentUser!.phoneNumber.toString(),
-          groupId: []);
+          groupId: [],
+      );
 
       // this is to store all information to user
       await firestore.collection('users').doc(uid).set(user.toMap());
