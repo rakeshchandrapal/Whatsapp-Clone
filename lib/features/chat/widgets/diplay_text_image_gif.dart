@@ -1,5 +1,5 @@
 
-import 'package:audioplayers/audioplayers.dart';
+// import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:whatsapp_clone/common/enums/message_enum.dart';
@@ -17,7 +17,7 @@ class DisplayTextImageGIF extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isPlaying = false;
-    final AudioPlayer audioPlayer = AudioPlayer();
+    // final AudioPlayer audioPlayer = AudioPlayer();
 
     return type == MessageEnum.text ? AppText(
       text: message,
@@ -30,13 +30,13 @@ class DisplayTextImageGIF extends StatelessWidget {
           ),
           onPressed: () async  {
             if(isPlaying){
-              await audioPlayer.pause();
+              // await audioPlayer.pause();
               setState((){
                 isPlaying = false;
               });
             }
             else {
-              await audioPlayer.play(UrlSource(message));
+              // await audioPlayer.play(UrlSource(message));
               setState((){
                 isPlaying = true;
               });

@@ -16,10 +16,12 @@ import '../../../assets/colors.dart';
 
 class BottomChatField extends ConsumerStatefulWidget {
   final String receiverUserId;
+  final bool isGroupChat;
 
   const BottomChatField({
     Key? key,
     required this.receiverUserId,
+    required this.isGroupChat,
   }) : super(key: key);
 
   @override
@@ -34,7 +36,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
   bool isRecording = false;
   FocusNode focusNode = FocusNode();
 
-  FlutterSoundRecorder?  _soundRecorder;
+  FlutterSoundRecorder? _soundRecorder;
 
   @override
   void initState() {
@@ -47,10 +49,9 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
   void openAudio() async {
     final status = await Permission.microphone.request();
 
-    if(status != PermissionStatus.granted){
+    if (status != PermissionStatus.granted) {
       throw RecordingPermissionException('Mic Permission is not allowed !');
-    }
-    else {
+    } else {
       await _soundRecorder!.openRecorder();
       isRecorderInit = true;
     }
@@ -64,27 +65,27 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     isRecorderInit = false;
   }
 
-  void hideEmojiContainer(){
+  void hideEmojiContainer() {
     setState(() {
       isShowEmojiContainer = false;
     });
   }
 
-  void showEmojiContainer(){
+  void showEmojiContainer() {
     setState(() {
       isShowEmojiContainer = true;
     });
   }
 
   void showKeyboard() => focusNode.requestFocus();
+
   void hideKeyboard() => focusNode.unfocus();
 
-  void toggleEmojiKeyboardContainer(){
-    if(isShowEmojiContainer){
+  void toggleEmojiKeyboardContainer() {
+    if (isShowEmojiContainer) {
       showKeyboard();
       hideEmojiContainer();
-    }
-    else {
+    } else {
       hideKeyboard();
       showEmojiContainer();
     }
@@ -92,23 +93,25 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
 
   void sendTextMessage() async {
     if (isShowSendBtn) {
-      ref.read(chatControllerProvider).sendTextMessage(context,
-          _messageController.text.trim().toString(), widget.receiverUserId);
+      ref.read(chatControllerProvider).sendTextMessage(
+            context,
+            _messageController.text.trim().toString(),
+            widget.receiverUserId,
+        widget.isGroupChat,
+          );
       setState(() {
         _messageController.text = "";
       });
-    }
-    else{
+    } else {
       var tempDir = await getTemporaryDirectory();
       var path = '${tempDir.path}/flutter_sound.aac';
-      if(!isRecorderInit){
+      if (!isRecorderInit) {
         return;
       }
-      if(isRecording){
+      if (isRecording) {
         await _soundRecorder!.stopRecorder();
         sendFileMessage(File(path), MessageEnum.audio);
-      }
-      else {
+      } else {
         await _soundRecorder!.startRecorder(
           toFile: path,
         );
@@ -117,8 +120,6 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
         isRecording = !isRecording;
       });
     }
-
-
   }
 
   void sendFileMessage(
@@ -130,6 +131,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
           file,
           widget.receiverUserId,
           messageEnum,
+          widget.isGroupChat,
         );
   }
 
@@ -158,7 +160,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
           children: [
             Expanded(
               child: TextFormField(
-                focusNode:  focusNode,
+                focusNode: focusNode,
                 onChanged: (val) {
                   if (val.isNotEmpty) {
                     setState(() {
@@ -224,35 +226,39 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                 left: 2,
               ),
               child: CircleAvatar(
-                backgroundColor: tabColor,
-                radius: 25,
-                child: IconButton(
-                        onPressed: sendTextMessage,
-                        icon:  Icon( isShowSendBtn ? Icons.send : isRecording ? Icons.close : Icons.mic),
-                        color: Colors.white,
-                      )
-
-              ),
+                  backgroundColor: tabColor,
+                  radius: 25,
+                  child: IconButton(
+                    onPressed: sendTextMessage,
+                    icon: Icon(isShowSendBtn
+                        ? Icons.send
+                        : isRecording
+                            ? Icons.close
+                            : Icons.mic),
+                    color: Colors.white,
+                  )),
             ),
-
           ],
         ),
+        isShowEmojiContainer
+            ? SizedBox(
+                height: 310,
+                child: EmojiPicker(
+                  onEmojiSelected: ((category, emoji) {
+                    setState(() {
+                      _messageController.text =
+                          _messageController.text + emoji.emoji;
+                    });
 
-        isShowEmojiContainer ?  SizedBox(height: 310,
-          child: EmojiPicker(
-            onEmojiSelected: ((category,emoji){
-              setState(() {
-                _messageController.text = _messageController.text+emoji.emoji;
-              });
-
-              if(!isShowSendBtn){
-                setState(() {
-                  isShowSendBtn  = true;
-                });
-              }
-            }),
-          ),
-        ) : const SizedBox(),
+                    if (!isShowSendBtn) {
+                      setState(() {
+                        isShowSendBtn = true;
+                      });
+                    }
+                  }),
+                ),
+              )
+            : const SizedBox(),
       ],
     );
   }

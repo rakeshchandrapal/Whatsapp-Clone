@@ -42,7 +42,7 @@ class WebScreenLayout extends StatelessWidget {
                 // chat app bar
                 WebChatAppBar(),
                 //   chat list
-                Expanded(child: ChatList(receiverUserId: " ",)),
+                Expanded(child: ChatList(receiverUserId: " ", isGroupChat: false,)),
                 // message input box
                 Container(
                   height: MediaQuery.of(context).size.height * 0.07,

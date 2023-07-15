@@ -13,10 +13,12 @@ import '../../../models/message.dart';
 
 class ChatList extends ConsumerStatefulWidget {
   final String receiverUserId;
+  final bool isGroupChat;
 
   const ChatList({
     Key? key,
     required this.receiverUserId,
+    required this.isGroupChat,
   }) : super(key: key);
 
   @override
@@ -49,8 +51,15 @@ class _ChatListState extends ConsumerState<ChatList> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Message>>(
-        stream:
-            ref.read(chatControllerProvider).chatStream(widget.receiverUserId),
+
+        // Here The Receiver Id is the group Id
+        stream: widget.isGroupChat
+            ? ref
+                .read(chatControllerProvider)
+                .groupChatStream(widget.receiverUserId)
+            : ref
+                .read(chatControllerProvider)
+                .chatStream(widget.receiverUserId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Loader();
@@ -68,8 +77,11 @@ class _ChatListState extends ConsumerState<ChatList> {
                 final messageData = snapshot.data![index];
                 var timeSent = DateFormat.jm().format(messageData.timeSent);
 
-                if(!messageData.isSeen && messageData.receiverId == FirebaseAuth.instance.currentUser!.uid){
-                  ref.read(chatControllerProvider).setChatMessageSeen(context, widget.receiverUserId, messageData.messageId);
+                if (!messageData.isSeen &&
+                    messageData.receiverId ==
+                        FirebaseAuth.instance.currentUser!.uid) {
+                  ref.read(chatControllerProvider).setChatMessageSeen(
+                      context, widget.receiverUserId, messageData.messageId);
                 }
                 if (messageData.senderId ==
                     FirebaseAuth.instance.currentUser!.uid) {
